@@ -1,0 +1,4 @@
+*.csv
+*.png
+*.ods
+scripts/__pycache__
