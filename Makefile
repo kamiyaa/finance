@@ -41,3 +41,6 @@ profit_monthly:
 	@echo "Generating Profit Graph..."
 	python scripts/gen_monthly_profit_graph.py $(EXPENSE_PATH) $(REVENUE_PATH)
 	@echo
+
+clean:
+	rm -f *.png *.csv
