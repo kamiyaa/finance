@@ -28,7 +28,7 @@ def sort_by_category(data):
     return (all_tags, all_tag_values)
 
 def output_details(data):
-    (_, all_category_values) = sort_by_category(data)    
+    (_, all_category_values) = sort_by_category(data)
 
     sorted_by_price = [(tag, (v[CATEGORY_PRICE_KEY], v[CATEGORY_QUANTITY_KEY])) for (tag, v) in all_category_values.items()]
     sorted_by_price.sort(key=lambda x: x[CATEGORY_PRICE_KEY])
@@ -40,7 +40,7 @@ def output_details(data):
     print("Total:".ljust(20), '\t$\t{}'.format(sum(monthly_transactions)))
 
 def gen_graph(data):
-    (_, all_category_values) = sort_by_category(data)    
+    (_, all_category_values) = sort_by_category(data)
 
     sorted_by_price = [(tag, v[CATEGORY_PRICE_KEY]) for (tag, v) in all_category_values.items()]
     sorted_by_price.sort(key=lambda x: x[1])
@@ -60,7 +60,7 @@ def gen_graph(data):
     ax.tick_params(axis='both', which='major', labelsize=XTICK_SIZE)
     ax.set_xlabel("CAD $")
     ax.set_ylabel("Categories")
-    ax.set_yticks(np.arange(len(xlabels)), fontsize=FONT_SIZE)
+    ax.set_yticks(np.arange(len(xlabels)))
     ax.set_yticklabels(xlabels, fontsize=FONT_SIZE)
 
     xs = [i for i in range(0, len(xlabels))]
