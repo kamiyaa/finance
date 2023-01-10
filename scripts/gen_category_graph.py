@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from enum import Enum
 from os import path
 
+GRAPH_TITLE = "{} Category Expenses".format(YEAR)
+GRAPH_EXPORT_FILENAME = "gen_category_bar.png"
+
 def sort_by_category(data):
     all_tags = set()
     all_tag_values = {}
@@ -56,20 +59,19 @@ def gen_graph(data):
     fig = plt.figure(figsize=(20, 10))
     ax = fig.add_axes([0, 0, 1, 1])
 
-    ax.set_title("{} Category Expenses".format(YEAR), fontsize=FONT_SIZE)
+    ax.set_title(GRAPH_TITLE, fontsize=FONT_SIZE)
     ax.tick_params(axis='both', which='major', labelsize=XTICK_SIZE)
     ax.set_xlabel("CAD $")
     ax.set_ylabel("Categories")
-    ax.set_yticks(np.arange(len(xlabels)))
+    ax.set_yticks(np.arange(len(xlabels)), fontsize=FONT_SIZE)
     ax.set_yticklabels(xlabels, fontsize=FONT_SIZE)
 
     xs = [i for i in range(0, len(xlabels))]
 
     ax.barh(xs, prices, color="#A89B8C")
 
-    export_filename = "gen_category_bar.png"
-    print("Exporting image to {}...".format(export_filename))
-    fig.savefig(export_filename, bbox_inches='tight')
+    print("Exporting image to {}...".format(GRAPH_EXPORT_FILENAME))
+    fig.savefig(GRAPH_EXPORT_FILENAME, bbox_inches='tight')
     print("Done!")
 
 def run(args):
