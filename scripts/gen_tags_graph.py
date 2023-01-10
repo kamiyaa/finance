@@ -64,9 +64,9 @@ def gen_graph(data):
 
     ax.set_title(GARPH_TITLE, fontsize=FONT_SIZE)
     ax.tick_params(axis='both', which='major', labelsize=XTICK_SIZE)
-    ax.set_xlabel("CAD $")
-    ax.set_ylabel("Tags")
-    ax.set_yticks(np.arange(len(xlabels)), fontsize=FONT_SIZE)
+    ax.set_xlabel("CAD $", fontsize=FONT_SIZE)
+    ax.set_ylabel("Tags", fontsize=FONT_SIZE)
+    ax.set_yticks(np.arange(len(xlabels)))
     ax.set_yticklabels(xlabels, fontsize=FONT_SIZE)
 
     xs = [i for i in range(0, len(xlabels))]
