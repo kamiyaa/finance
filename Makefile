@@ -7,7 +7,7 @@ EXPENSE_FILE = 02_expenses.toml
 REVENUE_PATH = $(SOURCE_DIR)/$(REVENUE_FILE)
 EXPENSE_PATH = $(SOURCE_DIR)/$(EXPENSE_FILE)
 
-all: csv revenue_monthly expenses_monthly expenses_category expenses_tags profit_monthly
+all: csv revenue_monthly expenses_monthly expenses_category expenses_tags expenses_sources profit_monthly
 
 csv:
 	@echo "Generating CSV equivalent..."
@@ -35,6 +35,11 @@ expenses_category: $(EXPENSE_PATH)
 expenses_tags: $(EXPENSE_PATH)
 	@echo "Generating Expense Tag Graph..."
 	python3 scripts/gen_tags_graph.py $(EXPENSE_PATH)
+	@echo
+
+expenses_sources: $(EXPENSE_PATH)
+	@echo "Generating Expense Source Graph..."
+	python3 scripts/gen_source_graph.py $(EXPENSE_PATH)
 	@echo
 
 profit_monthly:
