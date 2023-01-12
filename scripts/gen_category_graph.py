@@ -56,7 +56,7 @@ def gen_graph(data):
         prices.append(-price)
         xlabels.append(tag)
 
-    fig = plt.figure(figsize=(20, 10))
+    fig = plt.figure(figsize=(24, 16))
     ax = fig.add_axes([0, 0, 1, 1])
 
     ax.set_title(GRAPH_TITLE, fontsize=FONT_SIZE)

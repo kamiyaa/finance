@@ -33,7 +33,7 @@ class Transaction:
                 # elif isinstance(value, int)):
                 #     values.append(str(value))
                 else:
-                    values.append(str(value))    
+                    values.append(str(value))
 
         return ",".join(values)
 
@@ -42,10 +42,10 @@ class Transaction:
 def get_data(toml_string):
     monthly_transactions = [[] for i in range(12)]
     data = toml.loads(toml_string)
-    
-    exchange_rate = data['exchange_rate']
-    
-    items = data['item']
+
+    exchange_rate = data.get('exchange_rate', {})
+    items = data.get('item', [])
+
     for item in items:
         tx = Transaction.from_dict(item)
         monthly_transactions[tx.get_value("date").month - 1].append(tx)
