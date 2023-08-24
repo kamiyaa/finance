@@ -1,3 +1,5 @@
+from dataclasses import dataclass, asdict
+
 from lib_graph import *
 from lib_config import *
 
@@ -14,23 +16,25 @@ from os import path
 GRAPH_TITLE = "{} Category Expenses".format(YEAR)
 GRAPH_EXPORT_FILENAME = "gen_category_bar.png"
 
-def sort_by_category(data):
+def sort_by_category(data: TransactionList):
     all_tags = set()
     all_tag_values = {}
 
-    for monthly_txs in data["monthly_transactions"]:
-        for tx in monthly_txs:
-            tag = tx.get_value("tags")[0]
-            all_tags.add(tag)
-            if tag not in all_tag_values:
-                all_tag_values[tag] = {CATEGORY_QUANTITY_KEY: 0, CATEGORY_PRICE_KEY: 0.0}
+    for tx in data.transactions:
+        tag = tx.tags[0]
+        all_tags.add(tag)
+        if tag not in all_tag_values:
+            all_tag_values[tag] = {
+                CATEGORY_QUANTITY_KEY: 0,
+                CATEGORY_PRICE_KEY: 0.0
+            }
 
-            all_tag_values[tag][CATEGORY_QUANTITY_KEY] += 1
-            all_tag_values[tag][CATEGORY_PRICE_KEY] += tx.get_value("value")
+        all_tag_values[tag][CATEGORY_QUANTITY_KEY] += 1
+        all_tag_values[tag][CATEGORY_PRICE_KEY] += tx.value
 
     return (all_tags, all_tag_values)
 
-def output_details(data):
+def output_details(data: TransactionList):
     (_, all_category_values) = sort_by_category(data)
 
     sorted_by_price = [(tag, (v[CATEGORY_PRICE_KEY], v[CATEGORY_QUANTITY_KEY])) for (tag, v) in all_category_values.items()]
@@ -38,11 +42,12 @@ def output_details(data):
     for (k, v) in sorted_by_price:
         print(k.ljust(20), '\t{}'.format(v[CATEGORY_PRICE_KEY]), "\t{:.02f}".format(v[CATEGORY_QUANTITY_KEY]))
 
-    monthly_transactions = [sum(tx.get_value("value") for tx in m) for m in data["monthly_transactions"]]
+    transactions_by_month = [sum(tx.value for tx in m)
+        for m in data.transactions_by_month]
 
-    print("Total:".ljust(20), '\t$\t{}'.format(sum(monthly_transactions)))
+    print("Total:".ljust(20), '\t$\t{}'.format(sum(transactions_by_month)))
 
-def gen_graph(data):
+def gen_graph(data: TransactionList):
     (_, all_category_values) = sort_by_category(data)
 
     sorted_by_price = [(tag, v[CATEGORY_PRICE_KEY]) for (tag, v) in all_category_values.items()]
@@ -76,14 +81,13 @@ def gen_graph(data):
 
 def run(args):
     files = args.files
+    data = TransactionList()
     for file in files:
-        toml_string = ""
-        with open(file) as f:
-            toml_string = f.read()
+        parsed_toml = toml.load(file)
+        data.populate(parsed_toml)
 
-        data = get_data(toml_string)
-        output_details(data)
-        gen_graph(data)
+    output_details(data)
+    gen_graph(data)
 
 def main():
     parser = argparse.ArgumentParser(

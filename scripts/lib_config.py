@@ -1,6 +1,6 @@
 ## configurations
 
-YEAR = 2022
+YEAR = 2023
 
 TRANSACTION_FILENAME_FORMAT = "TOML"
 

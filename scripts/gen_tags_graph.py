@@ -19,16 +19,18 @@ def sort_by_tags(data):
     all_tags = set()
     all_tag_values = {}
 
-    for monthly_txs in data["monthly_transactions"]:
-        for tx in monthly_txs:
-            tags = tx.get_value("tags")
-            all_tags.update(tags)
-            for tag in tags:
-                if tag not in all_tag_values:
-                    all_tag_values[tag] = {CATEGORY_QUANTITY_KEY: 0, CATEGORY_PRICE_KEY: 0.0}
+    for tx in data.transactions:
+        tags = tx.tags
+        all_tags.update(tags)
+        for tag in tags:
+            if tag not in all_tag_values:
+                all_tag_values[tag] = {
+                    CATEGORY_QUANTITY_KEY: 0,
+                    CATEGORY_PRICE_KEY: 0.0
+                }
 
-                all_tag_values[tag][CATEGORY_QUANTITY_KEY] += 1
-                all_tag_values[tag][CATEGORY_PRICE_KEY] += tx.get_value("value")
+            all_tag_values[tag][CATEGORY_QUANTITY_KEY] += 1
+            all_tag_values[tag][CATEGORY_PRICE_KEY] += tx.value
 
     return (all_tags, all_tag_values)
 
@@ -41,9 +43,10 @@ def output_details(data):
     for (k, v) in sorted_by_price:
         print(k.ljust(20), '\t{}'.format(v[CATEGORY_PRICE_KEY]), "\t{:.02f}".format(v[CATEGORY_QUANTITY_KEY]))
 
-    monthly_transactions = [sum(tx.get_value("value") for tx in m) for m in data["monthly_transactions"]]
+    transactions_by_month = [sum(tx.value for tx in m)
+        for m in data.transactions_by_month]
 
-    print("Total:".ljust(20), '\t$\t{}'.format(sum(monthly_transactions)))
+    print("Total:".ljust(20), '\t$\t{}'.format(sum(transactions_by_month)))
 
 def gen_graph(data):
     (_, all_tag_values) = sort_by_tags(data)
@@ -80,13 +83,13 @@ def gen_graph(data):
 
 def run(args):
     files = args.files
+    data = TransactionList()
     for file in files:
-        toml_string = ""
-        with open(file) as f:
-            toml_string = f.read()
-        data = get_data(toml_string)
-        output_details(data)
-        gen_graph(data)
+        parsed_toml = toml.load(file)
+        data.populate(parsed_toml)
+
+    output_details(data)
+    gen_graph(data)
 
 def main():
     parser = argparse.ArgumentParser(

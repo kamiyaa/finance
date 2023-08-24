@@ -1,5 +1,5 @@
 
-SOURCE_DIR = 2022
+SOURCE_DIR = 2023
 
 REVENUE_FILE = 01_revenue.toml
 EXPENSE_FILE = 02_expenses.toml

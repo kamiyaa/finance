@@ -17,43 +17,33 @@ from os import path
 GRAPH_TITLE = "{} Monthly Profit".format(YEAR)
 GRAPH_EXPORT_FILENAME = "gen_monthly_profit.png"
 
-def get_monthly_sums(data):
-    exchange_rates = data['exchange_rate']
-    monthly_transactions = data["monthly_transactions"]
+def get_monthly_sums(data: TransactionList) -> list[float]:
+    exchange_rates = data.exchange_rates
+    transactions = data.transactions
 
     monthly_totals = []
-    for month in monthly_transactions:
+    for month in data.transactions_by_month:
         monthly_total = 0
         for tx in month:
-            tx_currency = tx.get_value("currency")
+            tx_currency = tx.currency
             monthly_total += calc_exchange_rate(
                 exchange_rates,
-                tx.get_value("value"),
+                tx.value,
                 tx_currency)
         monthly_totals.append(monthly_total)
     return monthly_totals
 
-def gen_graph(files):
-    all_monthly_transactions = [0 for i in range(12)]
-
-    for file in files:
-        toml_string = ""
-        with open(file) as f:
-            toml_string = f.read()
-        data = get_data(toml_string)
-
-        monthly_transactions = get_monthly_sums(data)
-        for (i, m) in enumerate(monthly_transactions):
-            all_monthly_transactions[i] += m
-
-    monthly_aggregate_transactions = np.cumsum(all_monthly_transactions)
+def gen_graph(data: TransactionList):
+    monthly_total_values = get_monthly_sums(data)
+    monthly_aggregate_transactions = np.cumsum(monthly_total_values)
 
     # Graphing
 
     print("Month\tTransactions")
-    for i, m in enumerate(monthly_transactions):
+    for i, m in enumerate(monthly_total_values):
         print("{:02d}\t$ {:.02f}".format(i + 1, m))
-    print("Total:\t$ {:.02f}".format(sum(monthly_transactions)))
+
+    print("Total:\t$ {:.02f}".format(sum(monthly_total_values)))
 
     font = {'family' : FONT_FAMILY,
             'weight' : 'bold',
@@ -71,7 +61,7 @@ def gen_graph(files):
     ax.set_xticks(months)
 
     ax.fill_between(months, 0, monthly_aggregate_transactions, color="#A89B8C")
-    ax.fill_between(months, 0, monthly_transactions, color="#F0DFAD")
+    ax.fill_between(months, 0, monthly_total_values, color="#F0DFAD")
 
     for (i, v) in enumerate(monthly_aggregate_transactions):
         ax.text(i + 0.7, v + 2,
@@ -80,7 +70,7 @@ def gen_graph(files):
                 fontweight='normal',
                 fontsize=FONT_SIZE)
 
-    for (i, v) in enumerate(monthly_transactions):
+    for (i, v) in enumerate(monthly_total_values):
         ax.text(i + 0.7, v + 2,
                 "{:.02f}".format(v),
                 color='#1E2749',
@@ -93,7 +83,12 @@ def gen_graph(files):
 
 def run(args):
     files = args.files
-    gen_graph(files)
+    data = TransactionList()
+    for file in files:
+        parsed_toml = toml.load(file)
+        data.populate(parsed_toml)
+
+    gen_graph(data)
 
 def main():
     parser = argparse.ArgumentParser(

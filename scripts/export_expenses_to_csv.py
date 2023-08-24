@@ -7,6 +7,7 @@ from os import path
 import toml
 
 from lib_graph import *
+from lib_misc import *
 
 COLUMNS = [
     "date",
@@ -30,7 +31,7 @@ COLUMN_IDS = [ COLUMNS_MAP[col] for col in COLUMNS ]
 
 def toml_to_csv(toml_string):
     parsed_toml = toml.loads(toml_string)
-    items = parsed_toml["item"]
+    items = parsed_toml.get(KEY_TRANSACTIONS, [])
 
     print(",".join(COLUMNS))
 

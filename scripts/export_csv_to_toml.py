@@ -7,12 +7,14 @@ from os import path
 import toml
 
 from lib_graph import *
+from lib_misc import *
 
-def csv_to_toml(toml_string):
-    parsed_toml = toml.loads(toml_string)
-    items = parsed_toml["item"]
+def csv_to_toml(data: TransactionList):
+    items = data.transactions
+    if len(items) == 0:
+        return
 
-    columns = list(items[0].keys())
+    columns = list(items[0].as_dict().keys())
     print(",".join(columns))
 
     for item in items:
@@ -20,15 +22,16 @@ def csv_to_toml(toml_string):
         print(tx.to_csv_row(columns))
 
 
+
 def run(args):
     files = args.files
+    data = TransactionList()
     for file in files:
-        toml_string = ""
-        with open(file) as f:
-            toml_string = f.read()
+        parsed_toml = toml.load(file)
+        data.populate(parsed_toml)
 
-        toml_to_csv(toml_string)
-
+    data.sort_by_date()
+    csv_to_toml(data)
 
 def main():
     parser = argparse.ArgumentParser(
